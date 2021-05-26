@@ -1,0 +1,6 @@
+torch==1.6
+torchvision==0.7.0
+pytorch_lightning==1.3.1
+pyyaml
+easydict
+
