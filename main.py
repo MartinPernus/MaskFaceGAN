@@ -1,11 +1,11 @@
 import os
-#os.environ['PATH'] += '/usr/local/cuda/bin:/usr/local/bin/:/usr/bin:'
-#os.environ['LD_LIBRARY_PATH'] = "/usr/local/cuda-10.0/lib64:/usr/local/cuda-10.0/include:/usr/local/lib/"
-#os.environ['CUDA_VISIBLE_DEVICES'] = '1'
-from model_module import ModelsModule
+from pathlib import Path
+import torch
+import argparse
 
-from utils import *
+from utils import save_image, read_img, load_config
 from trainer import Trainer
+from model_module import ModelsModule
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -15,7 +15,6 @@ def parse_args():
     parser.add_argument('--image', type=str, default='indir/1815.jpg')
     parser.add_argument('--target', type=int, default=1)
     parser.add_argument('--smoothing', type=float, default=0.05)
-    parser.add_argument('--use_e4e', type=bool, default=False)
     parser.add_argument('--size', type=float, default=0)
     args = parser.parse_args()
     return args
@@ -45,5 +44,3 @@ if __name__ == '__main__':
     img_result = trainer.generate_result()
 
     save_results(img_result, image_name, outdir=cfg.OUTDIR)
-
-

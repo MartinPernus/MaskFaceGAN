@@ -38,7 +38,7 @@ def noise_normalize_(noises):
         mean = noise.mean(dim=(1,2,3), keepdim=True)
         std = noise.std(dim=(1,2,3), keepdim=True)
 
-        noise.data.add_(-mean).div_(std)  # tako naredis in-place operation!
+        noise.data.add_(-mean).div_(std)
 
 def to_distribution(prob):
     distribution = prob.unsqueeze(-1)
@@ -54,4 +54,3 @@ def kl_divergence(input, target):
     if kl.ndim > 1:
         kl = torch.mean(kl, dim=1)
     return kl
-

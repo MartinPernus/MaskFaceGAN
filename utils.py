@@ -1,6 +1,5 @@
 import os
 import copy
-import argparse
 import shutil
 from pathlib import Path
 from easydict import EasyDict as edict
