@@ -20,3 +20,12 @@ Copy the created `stylegan2-ffhq-config-f.pt` checkpoint to models/stylegan2 fol
 Download the model checkpoint with download.sh script
 
 `./download.sh`
+
+#### Run the program
+`python main.py --attribute mouth_slightly_open --outdir output --image input/1815.jpg`
+
+The available attributes are specified in config.yml 
+
+
+
+

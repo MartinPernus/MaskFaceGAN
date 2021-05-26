@@ -56,6 +56,5 @@ SMOOTHING: 0.05
 # Size manipulation
 SIZE: 0.
 
-USE_E4E: False
 TRACK_PROGRESS: False
-OUTDIR: 'outdir'
+OUTDIR: 'output'

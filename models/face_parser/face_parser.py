@@ -25,7 +25,7 @@ class FaceParser(nn.Module):
         for attr in attributes:
             self.set_idx(attr)
 
-    def set_idx(self, attribute):  # tole je koristno samo za potem, ko optimiziras shape
+    def set_idx(self, attribute):
 
         if attribute in ['wearing_lipstick', 'mouth_slightly_open', 'smiling', 'big_lips']:
             target_name = 'mouth'

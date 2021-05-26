@@ -16,12 +16,8 @@ class Trainer():
 
         self.noises = models.get_noise(n, trainable=False)
 
-        if not cfg.USE_E4E:
-            self.latent = models.get_latent(n, trainable=False)
-            self.start_steps = 0
-        else:
-            self.latent = self.e4e_latent_prediction(self.image)
-            self.start_steps = 300
+        self.latent = self.e4e_latent_prediction(self.image)
+        self.start_steps = 300
 
         assert self.latent.size(0) == n
         assert all([x.size(0) == n for x in self.noises])
