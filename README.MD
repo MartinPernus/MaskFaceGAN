@@ -28,4 +28,4 @@ Download the model checkpoint with download.sh script
 The available attributes are specified in config.yml 
 
 ### Acknowledgement
-StyleGAN2 code is based on [rosinality's PyTorch implementation] (https://github.com/rosinality/stylegan2-pytorch) with minimal tweaks.
+StyleGAN2 code is based on [rosinality's PyTorch implementation](https://github.com/rosinality/stylegan2-pytorch) with minimal tweaks.
