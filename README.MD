@@ -22,7 +22,10 @@ Download the model checkpoint with download.sh script
 
 `./download.sh`
 
-#### Run the program
+#### 3. Run the program
 `python main.py --attribute mouth_slightly_open --outdir output --image input/1815.jpg`
 
 The available attributes are specified in config.yml 
+
+### Acknowledgement
+StyleGAN2 code is based on [rosinality's PyTorch implementation] (https://github.com/rosinality/stylegan2-pytorch) with minimal tweaks.
