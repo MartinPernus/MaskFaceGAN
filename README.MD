@@ -25,7 +25,3 @@ Download the model checkpoint with download.sh script
 `python main.py --attribute mouth_slightly_open --outdir output --image input/1815.jpg`
 
 The available attributes are specified in config.yml 
-
-
-
-
