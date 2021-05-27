@@ -18,6 +18,7 @@ class Trainer():
         self.latent = models.get_latent(n, trainable=False)
         self.start_steps = 0
 
+
         assert self.latent.size(0) == n
         assert all([x.size(0) == n for x in self.noises])
 
