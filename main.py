@@ -12,7 +12,7 @@ def parse_args():
     parser.add_argument('--gpu', type=bool, default=None)
     parser.add_argument('--attribute', type=str, default='mouth_slightly_open')
     parser.add_argument('--outdir', type=str, default=None)
-    parser.add_argument('--image', type=str, default='indir/1815.jpg')
+    parser.add_argument('--image', type=str, default='input/1815.jpg')
     parser.add_argument('--target', type=int, default=1)
     parser.add_argument('--smoothing', type=float, default=0.05)
     parser.add_argument('--size', type=float, default=0)
