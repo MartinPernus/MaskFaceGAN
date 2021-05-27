@@ -2,6 +2,7 @@
 
 [Paper](https://arxiv.org/abs/2103.11135)
 
+![Screenshot](teaser.jpg)
 We propose a method for high resolution face editing through the use of constraints on GAN inpainted image regions.
 
 ## Setup
