@@ -463,15 +463,16 @@ class Generator(nn.Module):
 
     @torch.no_grad()
     def get_latent_statistics(self, n=50000):
-        device = next(self.parameters()).device
         filepath = os.path.join(self.this_dir, 'latent_mean.pt')
         if os.path.exists(filepath):
             latent_mean = torch.load(filepath)
         else:
+            device = 'cuda'
+            self.to(device)
             noise_sample = torch.randn(n, 512, device=device)
             latent_out = self.style(noise_sample)
             latent_mean = latent_out.mean(0)
-            torch.save(latent_mean, filepath)
+            torch.save(latent_mean.cpu(), filepath)
 
         return latent_mean
 
