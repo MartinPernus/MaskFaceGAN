@@ -14,10 +14,14 @@ class Trainer():
 
         n = len(image)
 
-        self.noises = models.get_noise(n, trainable=False)
-        self.latent = models.get_latent(n, trainable=False)
-        self.start_steps = 0
+        if cfg.USE_E4E:
+            self.latent = self.e4e_latent_prediction(self.image)
+            self.start_steps = 300
+        else:
+            self.latent = models.get_latent(n, trainable=False)
+            self.start_steps = 0
 
+        self.noises = models.get_noise(n, trainable=False)
 
         assert self.latent.size(0) == n
         assert all([x.size(0) == n for x in self.noises])
@@ -29,6 +33,13 @@ class Trainer():
     @property
     def device(self):
         return next(self.models.parameters()).device
+
+
+    def e4e_latent_prediction(self, image):
+        from models.e4e import Encoder
+        enc = Encoder().to(image.device)
+        latent = enc(image)
+        return latent
 
     def train_latent(self):
         n = self.latent.size(0)

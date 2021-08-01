@@ -58,3 +58,4 @@ SIZE: 0.
 
 TRACK_PROGRESS: False
 OUTDIR: 'output'
+USE_E4E: False

@@ -16,9 +16,9 @@ def parse_args():
     parser.add_argument('--target', type=int, default=1)
     parser.add_argument('--smoothing', type=float, default=0.05)
     parser.add_argument('--size', type=float, default=0)
+    parser.add_argument('--use_e4e', action='store_true')
     args = parser.parse_args()
     return args
-
 
 def load_data(image_file, target, smoothing=0.05):
     image = read_img(image_file)
