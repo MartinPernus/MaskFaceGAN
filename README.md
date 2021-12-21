@@ -4,19 +4,16 @@
 
 <img src="images_paper/teaser.png" alt="comparison" width="600">
 
-
 We propose a method for high resolution face editing through the use of constraints on GAN inpainted image regions.
 
 ### Abstract
 Face editing represents a popular research topic within the computer vision and image processing communities. While significant progress has been made recently in this area, existing solutions: (i) are still largely focused on low-resolution images, (ii) often generate editing results with visual artefacts, or (iii) lack fine-grained control and alter multiple (entangled) attributes at once, when trying to generate the desired facial semantics. In this paper, we aim to address these issues though a novel attribute editing approach called MaskFaceGAN. The proposed approach is based on an optimization procedure that directly optimizes the latent code of a pre-trained (state-of-the-art) Generative Adversarial Network (i.e., StyleGAN2) with respect to several constraints that ensure: (i) preservation of relevant image content, (ii) generation of the targeted facial attributes, and (iii) spatially--selective treatment of local image areas. The constraints are enforced with the help of an (differentiable) attribute classifier and face parser that provide the necessary reference information for the optimization procedure. MaskFaceGAN is evaluated in extensive experiments on the CelebA-HQ, Helen and SiblingsDB-HQf datasets and in comparison with several state-of-the-art techniques from the literature, i.e., StarGAN, AttGAN, STGAN, and two versions of InterFaceGAN. Our experimental results show that the proposed approach is able to edit face images with respect to several facial attributes with unprecedented image quality and at high-resolutions (1024x1024), while exhibiting considerably less problems with attribute entanglement than competing solutions.
 
 ### Model Sketch
-
 <img src="images_paper/model.jpg" alt="comparison" width="600">
 
-
 ### Examples 
-### Comparison with Other Models
+#### Comparison with Other Models
 <img src="images_paper/comparison.png" alt="comparison" width="600">
 
 #### Attribute Size Manipulation
