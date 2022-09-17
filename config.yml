@@ -29,10 +29,10 @@ MODELS:
   SEGMENTATOR:
     N_CLASSES: 9
     CHANGE_EYEBROWS: False
-    CKPT: 'FaceParser.ckpt'
+    CKPT: 'state.ckpt'
     UPDATE_SHAPE: False
   CLASSIFIER:
-    CKPT: 'BranchedTiny.ckpt'
+    CKPT: 'state.pt'
 
 LOSS:
   weights:
