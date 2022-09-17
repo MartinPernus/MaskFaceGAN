@@ -1,1 +1,1 @@
-from .BranchedTiny import BranchedTinyAttr
+from .BranchedTiny import BranchedTiny

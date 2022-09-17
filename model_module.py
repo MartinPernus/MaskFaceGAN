@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from models import BranchedTinyAttr, FaceParser, Generator
+from models import BranchedTiny, FaceParser, Generator
 
 from utils import interpolate
 
@@ -11,7 +11,7 @@ class ModelsModule(nn.Module):
         self.cfg = cfg
         self.update_shape = cfg.SEGMENTATOR.UPDATE_SHAPE
 
-        self.classifier = BranchedTinyAttr(cfg.CLASSIFIER)
+        self.classifier = BranchedTiny()
         self.face_parser = FaceParser(cfg.SEGMENTATOR)
         self.generator = Generator(1024, 512, 8)
 
