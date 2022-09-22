@@ -5,94 +5,93 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 from loss_function_helpers import noise_normalize_, noise_regularize, kl_divergence
+from model_module import batch_mse_loss
+
+def e4e_latent_prediction(image):
+    from models.e4e import Encoder
+    enc = Encoder().to(image.device)
+    latent = enc(image)
+    return latent
 
 class Trainer():
-    def __init__(self, image, models, target, cfg):
-        self.models = models.to(cfg.DEVICE)
-        self.image = image.to(cfg.DEVICE)
-        self.target = target.to(cfg.DEVICE)
+    def __init__(self, models, image, target, cfg):
+        self.models = models
+        self.image = image
+        self.target = target
+        self.cfg = cfg
+        
+        n = len(self.image)        
+        self.noises = self.models.get_noise(n, trainable=False)
+        self.masks = self.models.face_parser.get_image_masks(self.image, cfg.models.is_local)
+        self.original_masks = copy.deepcopy(self.masks)
 
-        n = len(image)
-
-        if cfg.USE_E4E:
-            self.latent = self.e4e_latent_prediction(self.image)
+        if self.cfg.e4e_init:
+            self.latent = e4e_latent_prediction(self.image)
             self.start_steps = 300
         else:
-            self.latent = models.get_latent(n, trainable=False)
+            self.latent = self.models.get_latent(n, trainable=False)
             self.start_steps = 0
-
-        self.noises = models.get_noise(n, trainable=False)
-
-        assert self.latent.size(0) == n
-        assert all([x.size(0) == n for x in self.noises])
-
-        self.masks = models.get_image_masks(self.image)
-        self.original_masks = copy.deepcopy(self.masks)
-        self.cfg = cfg
 
     @property
     def device(self):
         return next(self.models.parameters()).device
 
-
-    def e4e_latent_prediction(self, image):
-        from models.e4e import Encoder
-        enc = Encoder().to(image.device)
-        latent = enc(image)
-        return latent
-
     def train_latent(self):
+        n = len(self.image)
+
+        assert self.latent.size(0) == n
+        assert all([x.size(0) == n for x in self.noises])
+
         n = self.latent.size(0)
         self.latent.requires_grad_(True)
 
-        size_multiplier = torch.tensor([self.cfg.SIZE]).view(1, -1).to(self.device)
+        size_multiplier = torch.tensor([self.cfg.size]).view(1, -1).to(self.device)
         target_attr_portion = size_multiplier * get_component_portion(self.masks['dynamic'])
 
-        optimizer = optim.Adam([self.latent], lr=self.cfg.OPTIMIZER.LR_LATENT)
+        optimizer = optim.Adam([self.latent], lr=self.cfg.optimizer.lr_latent)
 
         losses = []
-        dynamic_masking_start = self.cfg.LOSS.start_steps.seg
-        dynamic_masking_end = dynamic_masking_start + self.cfg.DYNAMIC_MASKING_ITERS
+        dynamic_masking_start = self.cfg.loss.start_steps.seg
+        dynamic_masking_end = dynamic_masking_start + self.cfg.dynamic_masking_iters
 
-        for i in range(self.start_steps, self.cfg.N_LATENT_STEPS):
-            if i % self.cfg.N_ITER_PRINT == 0:
-                print(f'Latent optimization {i}/{self.cfg.N_LATENT_STEPS}')
+        for i in range(self.start_steps, self.cfg.steps.latent):
+            if i % self.cfg.steps.log == 0:
+                print(f'Latent optimization {i:03d}/{self.cfg.steps.latent}')
 
-            if self.cfg.OPTIMIZER.REINIT and i == self.cfg.LOSS.start_steps.classf:
-                optimizer = optim.Adam([self.latent], lr=self.cfg.OPTIMIZER.LR_LATENT)
+            if self.cfg.optimizer.reinit and i == self.cfg.loss.start_steps.classf:
+                optimizer = optim.Adam([self.latent], lr=self.cfg.optimizer.lr_latent)
 
-            if i == dynamic_masking_end and self.cfg.N_NOISE_STEPS > 0:
+            if i == dynamic_masking_end and self.cfg.steps.noise > 0:
                 self.noises = self.models.get_noise(n, trainable=False, random=True)
 
             images_generated = self.models.generator(self.latent, noise=self.noises, to_01=True)
 
             loss = {}
-            loss['mse'] = batch_mse_loss(self.image, images_generated, self.masks['mse'])
+            loss['recon'] = self.models.recon_loss(self.image, images_generated, self.masks['recon'])
 
-            if self.cfg.LOSS.weights.classf > 0 and i >= self.cfg.LOSS.start_steps.classf:
+            if self.cfg.loss.weights.classf > 0 and i >= self.cfg.loss.start_steps.classf:
                 attr_pred = torch.sigmoid(self.models.classifier(images_generated))
                 loss['classf'] = kl_divergence(attr_pred, self.target)
 
-            if self.cfg.LOSS.weights.seg > 0 and i >= self.cfg.LOSS.start_steps.seg:
-                i_dynamic_mask = self.models.face_parser(images_generated, mode='shape')
+            if self.cfg.loss.weights.seg > 0 and i >= self.cfg.loss.start_steps.seg:
+                i_dynamic_mask = self.models.face_parser(images_generated, mode='shape', upsample=False)
                 loss['seg'] = batch_mse_loss(i_dynamic_mask, self.masks['shape'])
 
-            if self.cfg.SIZE > 0 and i >= self.cfg.LOSS.start_steps.seg:
+            if self.cfg.size > 0 and i >= self.cfg.loss.start_steps.seg:
                 i_dynamic_mask = self.models.face_parser(images_generated, mode='dynamic')
                 i_img_portion = get_component_portion(i_dynamic_mask)
                 loss['size'] = kl_divergence(i_img_portion, target_attr_portion)
 
             loss_sum = 0
             for term in loss:
-                weight = self.cfg.LOSS.weights[term]
+                weight = self.cfg.loss.weights[term]
                 loss_sum += weight * loss[term].sum()
 
             loss_sum.backward()
             optimizer.step()
             optimizer.zero_grad()
 
-
-            if self.cfg.DYNAMIC_MASKING and dynamic_masking_start <= i < dynamic_masking_end:
+            if self.cfg.dynamic_masking and dynamic_masking_start <= i < dynamic_masking_end:
                 self.masks = self.models.update_image_masks(images_generated, self.original_masks, self.masks)
 
         print('Finished latent optimization.\n')
@@ -101,21 +100,21 @@ class Trainer():
     def train_noise(self):
         self.noises = [x.requires_grad_(True) for x in self.noises]
         self.latent = self.latent.detach()
-        optimizer = optim.Adam(self.noises, lr=self.cfg.OPTIMIZER.LR_NOISE)
+        optimizer = optim.Adam(self.noises, lr=self.cfg.optimizer.lr_noise)
 
-        for i in range(self.cfg.N_NOISE_STEPS+1):
-            if i % self.cfg.N_ITER_PRINT == 0:
-                print(f'Noise optimization {i}/{self.cfg.N_NOISE_STEPS}')
+        for i in range(self.cfg.steps.noise+1):
+            if i % self.cfg.steps.log == 0:
+                print(f'Noise optimization {i:03d}/{self.cfg.steps.noise}')
 
             images_generated = self.models.generator(self.latent, noise=self.noises, to_01=True)
             loss = {}
             loss['n_loss'] = noise_regularize(self.noises)
             noise_normalize_(self.noises)
 
-            loss['mse'] = batch_mse_loss(self.image, images_generated, self.masks['mse'])
+            loss['recon'] = batch_mse_loss(self.image, images_generated, self.masks['recon'])
             loss_sum = 0
             for term in loss:
-                loss_sum += self.cfg.LOSS.weights[term] * loss[term]
+                loss_sum += self.cfg.loss.weights[term] * loss[term]
 
             loss_sum.backward()
             optimizer.step()
@@ -143,14 +142,5 @@ class Trainer():
         comparisons = torch.cat(comparisons, dim=0)
         return comparisons
 
-
-def batch_mse_loss(input, target, mask=None):
-    loss = F.mse_loss(input, target, reduction='none')
-    if mask is not None:
-        loss = mask * loss
-    loss_for_image = torch.mean(loss, dim=(1, 2, 3))
-    return loss_for_image
-
 def get_component_portion(mask):
-    assert mask.size(2) * mask.size(3)  # todo: delete
     return mask.sum(dim=(2,3)) / (mask.size(2) * mask.size(3))

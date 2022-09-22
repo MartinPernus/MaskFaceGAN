@@ -1,7 +1,7 @@
 
+import os
 import torch
 import torch.nn as nn
-import os
 import torch.nn.functional as F
 
 
@@ -97,10 +97,10 @@ class BranchedTiny(nn.Module):
 
         self.attr_idxs = []
 
-        if ckpt is not None:
-            self.load(ckpt)
-            self.requires_grad_(False)
-            self.eval()
+        ckpt = ckpt or 'state.pt'
+        self.load(ckpt)
+        self.requires_grad_(False)
+        self.eval()
 
     def set_idx_list(self, attributes: list):
         for attr in attributes:
@@ -113,18 +113,8 @@ class BranchedTiny(nn.Module):
         return (imgs - self.celeba_mean) / self.celeba_std
 
     def load(self, ckpt):
-        path = os.path.join(os.path.dirname(__file__), ckpt)
-        state_dict = torch.load(path, map_location='cpu')['state_dict']
-
-        new_state_dict = {}
-        for k, v in state_dict.items():
-            if 'model.' in k:
-                newk = k[6:]
-            else:
-                newk = k
-            new_state_dict[newk] = v
-
-        self.load_state_dict(new_state_dict)
+        state = torch.load(os.path.join(os.path.dirname(__file__), ckpt), map_location='cpu')
+        self.load_state_dict(state)
 
     def resize(self, x):
         if x.size(-1) != 224:

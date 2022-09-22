@@ -1,4 +1,36 @@
-ALL_ATTRIBUTES:
+device: cuda:0
+
+optimizer:
+  lr_latent: 0.001
+  lr_noise: 0.1
+  reinit: true
+
+steps:
+  latent: 1000
+  noise: 500
+  log: 100
+
+models:
+  update_shape: false
+
+loss:
+  weights:
+    classf: 0.005
+    mse: 2
+    seg: 0.5
+    n_loss: 1
+    size: 1
+    lpips: 0.03
+  start_steps:
+    classf: 500
+    mse: 0
+    seg: 500
+    n_loss: 0
+
+dynamic_masking: true
+dynamic_masking_iters: 200
+
+local_attributes:
   - wearing_lipstick
   - mouth_slightly_open
   - smiling
@@ -14,48 +46,7 @@ ALL_ATTRIBUTES:
   - wavy_hair
   - straight_hair
 
-OPTIMIZER:
-  LR_LATENT: 0.001
-  LR_NOISE: 0.1
-  REINIT: True
-
-GPU: True
-
-N_ITER_PRINT: 100
-N_LATENT_STEPS: 1000
-N_NOISE_STEPS: 500
-
-MODELS:
-  SEGMENTATOR:
-    N_CLASSES: 9
-    CHANGE_EYEBROWS: False
-    CKPT: 'state.ckpt'
-    UPDATE_SHAPE: False
-  CLASSIFIER:
-    CKPT: 'state.pt'
-
-LOSS:
-  weights:
-    classf: 0.005
-    mse: 2
-    seg: 0.5
-    n_loss: 1
-    size: 1
-  start_steps:
-    classf: 500
-    mse: 0
-    seg: 500
-    n_loss: 0
-
-DYNAMIC_MASKING: True
-DYNAMIC_MASKING_ITERS: 200
-
-# Attribute prediction
-SMOOTHING: 0.05
-
-# Size manipulation
-SIZE: 0.
-
-TRACK_PROGRESS: False
-OUTDIR: 'output'
-USE_E4E: False
+global_attributes: 
+  - male
+  - young
+  - pale_skin

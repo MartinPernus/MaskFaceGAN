@@ -22,6 +22,10 @@ Face editing represents a popular research topic within the computer vision and 
 #### Attribute Intensity Manipulation
 <img src="images_paper/intensity-change.png" alt="comparison" width="600">
 
+#### NEW: Global Editing 
+<img src="images_paper/global_editing.png" alt="global_editing" width="600">
+
+Global editing is turned on my default whenever you run main.py with `attribute` argument that does not belong to the `local_attributes` list (specified in `config.yml`).
 
 ## Setup
 
@@ -44,14 +48,16 @@ Download the model checkpoint with download.sh script
 `python main.py --attribute mouth_slightly_open --outdir output --image input/1815.jpg`
 
 You can also optionally use the e4e model (it is downloaded via `download.sh` script). Use it by specifying
-`--use_e4e` argument when calling the `main.py` script.
+`--e4e_init` argument when calling the `main.py` script.
 
-The available attributes are specified in config.yml 
+The available attributes are specified in `config.yml`
 
-### Acknowledgement
-StyleGAN2 code is based on [rosinality's PyTorch implementation](https://github.com/rosinality/stylegan2-pytorch).
+### Acknowledgements
+StyleGAN2 code is based on the [rosinality's PyTorch implementation](https://github.com/rosinality/stylegan2-pytorch).
 
 The e4e code is based on the [official implementation](https://github.com/omertov/encoder4editing)
+
+Masked LPIPS loss function is based on [official implementation](https://github.com/richzhang/PerceptualSimilarity)
 
 ### Citation
 
