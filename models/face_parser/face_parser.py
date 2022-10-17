@@ -89,13 +89,12 @@ class FaceParser(nn.Module):
         masks = {}
 
         if is_local:
-            for mode in self.face_parser.mask_modes:
+            for mode in self.mask_modes:
                 masks[mode] = self(images, mode)
         else:
             masks['recon'] = self(images, 'global')
             masks['blend'] = torch.clone(masks['recon'])
             masks['dynamic'] = torch.clone(masks['recon'])
-
         return masks
 
 

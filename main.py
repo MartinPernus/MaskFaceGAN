@@ -32,7 +32,8 @@ if __name__ == '__main__':
     image, target = load_data(args.image, args.target, 
                             device=cfg.device, smoothing=args.smoothing)
 
-    models = ModelsModule(attribute_subset=cfg.attributes, update_shape=cfg.models.update_shape).to(cfg.device)
+    models = ModelsModule(attribute_subset=cfg.attributes, update_shape=cfg.models.update_shape,
+                        is_local=cfg.models.is_local).to(cfg.device)
 
     trainer = Trainer(models, image, target, cfg)
 

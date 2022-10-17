@@ -55,8 +55,6 @@ class Trainer():
         dynamic_masking_end = dynamic_masking_start + self.cfg.dynamic_masking_iters
 
         for i in range(self.start_steps, self.cfg.steps.latent):
-            if i % self.cfg.steps.log == 0:
-                print(f'Latent optimization {i:03d}/{self.cfg.steps.latent}')
 
             if self.cfg.optimizer.reinit and i == self.cfg.loss.start_steps.classf:
                 optimizer = optim.Adam([self.latent], lr=self.cfg.optimizer.lr_latent)
@@ -74,13 +72,16 @@ class Trainer():
                 loss['classf'] = kl_divergence(attr_pred, self.target)
 
             if self.cfg.loss.weights.seg > 0 and i >= self.cfg.loss.start_steps.seg:
-                i_dynamic_mask = self.models.face_parser(images_generated, mode='shape', upsample=False)
+                i_dynamic_mask = self.models.face_parser(images_generated, mode='shape')
                 loss['seg'] = batch_mse_loss(i_dynamic_mask, self.masks['shape'])
 
             if self.cfg.size > 0 and i >= self.cfg.loss.start_steps.seg:
                 i_dynamic_mask = self.models.face_parser(images_generated, mode='dynamic')
                 i_img_portion = get_component_portion(i_dynamic_mask)
                 loss['size'] = kl_divergence(i_img_portion, target_attr_portion)
+
+            if i % self.cfg.steps.log == 0:
+                print(f'Latent optimization {i:03d}/{self.cfg.steps.latent}')
 
             loss_sum = 0
             for term in loss:
@@ -126,8 +127,7 @@ class Trainer():
     @torch.no_grad()
     def generate_result(self):
         images_generated = self.models.generator(self.latent, noise=self.noises, to_01=True)
-        blend_mask = self.models.face_parser(images_generated, 'blend')
-        result = blend_mask * images_generated + (1 - blend_mask) * self.image
+        result = self.masks['blend'] * images_generated + (1 - self.masks['blend']) * self.image
         return result
 
     def generate_image(self):
