@@ -120,50 +120,56 @@ def read_img(path):
 
 
 class Config:
-    def __init__(self, filename, attribute, size: float=0,
-                                            e4e_init: bool=False
-                                            ):
+    def __init__(self, filename, attribute, size: float=0, e4e_init: bool=False, force_global: bool=False,
+                       blend_option='include_skin'):
+        self.attribute = attribute
+        self.size = size
+        self.e4e_init = e4e_init
+        self.force_global = force_global
+        self.blend_option = blend_option
+
         self.cfg = load_yaml(filename)
         self.cfg.size = size
-        self.add_attribute_config(attribute, e4e_init)
+        self.cfg.blend_option = blend_option
 
-    def add_attribute_config(self, attribute, e4e_init):
-
-        is_hair, is_hair_shape = self.check_hair(attribute)
-        if not is_hair:
-            self.cfg.loss.weights.seg = 0
-        if is_hair_shape:
-            self.cfg.models.update_shape = True
-
-        self.cfg.models.is_local = self.check_local_attr(attribute)
-        self.cfg.attributes = [attribute]
-        if self.cfg.models.is_local:
-            self.set_local_cfg(e4e_init)
-        else:
-            self.set_global_cfg()
+        self.cfg.attributes = [self.attribute]
+        self.set_hair_config()
+        self.set_attr_config()
 
     def set_global_cfg(self):
+        self.cfg.models.is_local = False
         self.cfg.e4e_init = True
         self.cfg.loss.weights.recon = self.cfg.loss.weights.lpips
         self.cfg.dynamic_masking = False
         self.cfg.loss.start_steps.classf = 0
         self.cfg.optimizer.reinit = False
     
-    def set_local_cfg(self, e4e_init):
-        self.cfg.e4e_init = e4e_init
+    def set_local_cfg(self):
+        self.cfg.models.is_local = True
+        self.cfg.e4e_init = self.e4e_init
         self.cfg.loss.weights.recon = self.cfg.loss.weights.mse
 
-    @staticmethod
-    def check_hair(attribute):
+    def set_hair_config(self):
         is_hair_shape = is_hair_color = is_hair = False
-        is_hair_shape |= attribute in ('wavy_hair', 'straight_hair')
-        is_hair_color |= attribute in ('black_hair', 'brown_hair', 'blond_hair', 'gray_hair')
+        is_hair_shape |= self.attribute in ('wavy_hair', 'straight_hair')
+        is_hair_color |= self.attribute in ('black_hair', 'brown_hair', 'blond_hair', 'gray_hair')
         is_hair |= is_hair_color or is_hair_shape
+
+        if not is_hair:
+            self.cfg.loss.weights.seg = 0
+        if is_hair_shape:
+            self.cfg.models.update_shape = True
 
         return is_hair, is_hair_shape
 
-    def check_local_attr(self, attr):
-        is_local = attr in self.cfg.local_attributes
-        if not is_local:
-            print('Attribute not in specified list of local attributes, setting up global editing')
-        return is_local
+    def set_attr_config(self):
+        if self.force_global:
+            is_local = False
+        else:
+            is_local = self.attribute in self.cfg.local_attributes
+
+        if is_local:
+            self.set_local_cfg()
+        else:
+            self.set_global_cfg()
+        
