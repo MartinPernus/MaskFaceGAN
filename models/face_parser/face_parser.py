@@ -23,7 +23,7 @@ def attr2regions(attr):
     return regions
 
 class FaceParser(nn.Module):
-    def __init__(self):
+    def __init__(self, blend_option):
         super().__init__()
         self.mask_modes = ['recon', 'shape', 'blend', 'dynamic']
         self.model = deeplabv3_resnet50(pretrained=False, num_classes=9)
@@ -35,7 +35,7 @@ class FaceParser(nn.Module):
         self.upsample_cfg = {'size': (1024, 1024), 'mode': 'bilinear'}
 
         self.mask_idxs = {'recon': [self.mask2idx['skin']],
-                          'blend': [self.mask2idx['skin']],
+                          'blend': [self.mask2idx['skin']] if blend_option == 'include_skin' else [],
                           'shape': [],
                           'dynamic': [],
                           'global': [self.mask2idx[attr] for attr in self.all_masks[1:]]

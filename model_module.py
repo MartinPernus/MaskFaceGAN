@@ -15,13 +15,13 @@ def batch_mse_loss(input, target, mask=None):
     return loss_for_image
 
 class ModelsModule(nn.Module):
-    def __init__(self, attribute_subset=None, update_shape=False, is_local=False):
+    def __init__(self, attribute_subset=None, update_shape=False, is_local=False, blend_option='include_skin'):
         super().__init__()
         self.update_shape = update_shape
         self.is_local = is_local
 
         self.classifier = BranchedTiny()
-        self.face_parser = FaceParser()
+        self.face_parser = FaceParser(blend_option=blend_option)
         self.generator = Generator(1024, 512, 8)
         if not self.is_local:
             self.lpips = LPIPS()

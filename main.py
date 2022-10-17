@@ -17,6 +17,8 @@ def parse_args():
     parser.add_argument('--smoothing', type=float, default=0.05)
     parser.add_argument('--size', type=float, default=0)
     parser.add_argument('--e4e_init', action='store_true')
+    parser.add_argument('--force_global', action='store_true')
+    parser.add_argument('--blend_option', choices=['include_skin', 'no_skin'], default='include_skin')
     args = parser.parse_args()
     return args
 
@@ -28,13 +30,14 @@ def load_data(image_file, target, device='cuda:0', smoothing=0.05):
 
 if __name__ == '__main__':
     args = parse_args()  # n, gpu
-    cfg = Config('config.yml', args.attribute, args.e4e_init).cfg
+    cfg = Config('config.yml', attribute=args.attribute, size=args.size, e4e_init=args.e4e_init,
+            blend_option=args.blend_option).cfg
+
     image, target = load_data(args.image, args.target, 
                             device=cfg.device, smoothing=args.smoothing)
 
     models = ModelsModule(attribute_subset=cfg.attributes, update_shape=cfg.models.update_shape,
-                        is_local=cfg.models.is_local).to(cfg.device)
-
+                        is_local=cfg.models.is_local, blend_option=cfg.blend_option).to(cfg.device)
     trainer = Trainer(models, image, target, cfg)
 
     trainer.train_latent()

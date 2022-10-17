@@ -2,7 +2,6 @@ import copy
 
 import torch
 import torch.optim as optim
-import torch.nn.functional as F
 
 from loss_function_helpers import noise_normalize_, noise_regularize, kl_divergence
 from model_module import batch_mse_loss
@@ -82,6 +81,8 @@ class Trainer():
 
             if i % self.cfg.steps.log == 0:
                 print(f'Latent optimization {i:03d}/{self.cfg.steps.latent}')
+
+
 
             loss_sum = 0
             for term in loss:
