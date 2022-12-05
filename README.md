@@ -63,7 +63,7 @@ Masked LPIPS loss function is based on [official implementation](https://github.
 ### Sponsor acknowledgements
 Supported in parts by the Slovenian Research Agency ARRS through the Research Programme P2-0250(B) Metrology and Biometric System, the ARRS Project J2-2501(A) DeepBeauty and the ARRS junior researcher program.
 
-<img src="images_readme/ARRSLogo.png" alt="global_editing" width="400">
+<img src="images_readme/ARRSLogo.png" alt="sponsor_logo" width="400">
 
 ### Citation
 
