@@ -1,4 +1,5 @@
-# High Resolution Face Editing with Masked GAN Latent Code Optimization
+# High Resolution Face Editing with Masked GAN Latent Code Optimization 
+## IEEE Transactions on Image Processing 2023
 
 [PDF](https://arxiv.org/abs/2103.11135)
 
