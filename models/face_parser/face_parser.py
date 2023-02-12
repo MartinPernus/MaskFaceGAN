@@ -4,7 +4,7 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchvision.models.segmentation.segmentation import deeplabv3_resnet50
+from torchvision.models.segmentation import deeplabv3_resnet50
 
 
 def attr2regions(attr):
