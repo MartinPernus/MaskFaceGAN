@@ -58,7 +58,7 @@ StyleGAN2 code is based on the [rosinality's PyTorch implementation](https://git
 
 The e4e code is based on the [official implementation](https://github.com/omertov/encoder4editing)
 
-Masked LPIPS loss function is based on [official implementation](https://github.com/richzhang/PerceptualSimilarity)
+Masked LPIPS loss function is adapted from [official implementation](https://github.com/richzhang/PerceptualSimilarity)
 
 
 ### Sponsor acknowledgements
